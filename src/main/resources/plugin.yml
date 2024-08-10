@@ -1,0 +1,12 @@
+name: MIDLPlugin
+version: '${project.version}'
+main: com.yolwoocle.midlplugin.MIDLPlugin
+api-version: '1.21'
+
+commands:
+  checkpoint:
+    description: Teleporte le joueur sur le dernier checkpoint
+    aliases: [cp]
+    usage: /checkpoint
+    permission: checkpoint.command
+    permission-message: Vous n'avez pas la permission d'utiliser cette commande
