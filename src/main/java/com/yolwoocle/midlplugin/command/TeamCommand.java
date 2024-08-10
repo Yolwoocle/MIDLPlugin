@@ -1,14 +1,9 @@
 package com.yolwoocle.midlplugin.command;
 
-import com.yolwoocle.midlplugin.MIDLPlugin;
-import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import java.util.HashMap;
-import java.util.UUID;
 
 public class TeamCommand implements CommandExecutor {
     @Override

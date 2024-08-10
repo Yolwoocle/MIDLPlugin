@@ -1,8 +1,11 @@
 package com.yolwoocle.midlplugin;
 
+import com.yolwoocle.midlplugin.command.TeamCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.Objects;
 
 public final class MIDLPlugin extends JavaPlugin {
     private static MIDLPlugin instance;
@@ -16,6 +19,8 @@ public final class MIDLPlugin extends JavaPlugin {
         for (Player player: Bukkit.getOnlinePlayers()) {
             player.sendMessage("Hello from MIDL");
         }
+
+        Objects.requireNonNull(getCommand("team")).setExecutor(new TeamCommand());
     }
 
     @Override
