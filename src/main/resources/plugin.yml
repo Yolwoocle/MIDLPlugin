@@ -4,6 +4,6 @@ main: com.yolwoocle.midlplugin.MIDLPlugin
 api-version: '1.21'
 
 commands:
-  team:
+  guild:
     description: Commande mère MIDL
-    usage: /team
+    usage: /guild
