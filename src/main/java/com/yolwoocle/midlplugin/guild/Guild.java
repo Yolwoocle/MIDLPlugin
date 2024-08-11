@@ -8,14 +8,19 @@ import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.entity.Player;
+import org.bukkit.scoreboard.Team;
+import org.bukkit.util.BoundingBox;
 
 import javax.annotation.Nullable;
 import java.util.*;
 
 public class Guild {
     private final ConfigurationSection section;
-    private HashMap<UUID, GuildMember> members;
+    private final HashMap<UUID, GuildMember> members = new HashMap<>();
+    private final Color color;
+    private final Team team;
+    private final BoundingBox boundingBox;
+    private final String name;
 
     public Guild(ConfigurationSection section) {
         this.section = section;
