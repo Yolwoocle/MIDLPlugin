@@ -3,9 +3,7 @@ package com.yolwoocle.midlplugin;
 import com.yolwoocle.midlplugin.command.GuildCommand;
 import com.yolwoocle.midlplugin.guild.Guild;
 import com.yolwoocle.midlplugin.util.Configs;
-import fr.mrmicky.fastboard.FastBoard;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
@@ -13,10 +11,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-public final class MIDLPlugin extends JavaPlugin {
-    private static MIDLPlugin instance;
-    private final HashMap<String, Guild> guilds = new HashMap<>();
-    private final BoardManager boardManager = new BoardManager();
+public final class PluginMain extends JavaPlugin {
+
+    private static PluginMain instance;
 
     @Override
     public void onEnable() {
@@ -26,13 +23,15 @@ public final class MIDLPlugin extends JavaPlugin {
         // Register configs
         Configs.register("guilds");
 
+        // Register listeners
+        PluginManager pm = getServer().getPluginManager();
+        pm.registerEvents(new GuildMemberListener(), this);
+
+        // Register commands
+        Objects.requireNonNull(getCommand("guild")).setExecutor(new GuildCommand());
+
         // Plugin startup logic
         getLogger().info("Plugin MIDL activé.");
-        for (Player player: Bukkit.getOnlinePlayers()) {
-            player.sendMessage("Hello from MIDL");
-        }
-
-        Objects.requireNonNull(getCommand("guild")).setExecutor(new GuildCommand());
     }
 
     @Override
@@ -43,4 +42,5 @@ public final class MIDLPlugin extends JavaPlugin {
     public static MIDLPlugin getInstance() {
         return instance;
     }
+
 }
