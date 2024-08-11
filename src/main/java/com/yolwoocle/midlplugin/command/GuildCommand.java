@@ -1,25 +1,47 @@
 package com.yolwoocle.midlplugin.command;
 
+import com.yolwoocle.midlplugin.command.guild.JoinCommand;
+import com.yolwoocle.midlplugin.command.guild.LeaveCommand;
+import com.yolwoocle.midlplugin.util.types.AbstractCommand;
+import com.yolwoocle.midlplugin.util.types.AbstractMasterCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
-public class GuildCommand implements CommandExecutor {
+import java.util.ArrayList;
+import java.util.List;
+
+public class GuildCommand extends AbstractMasterCommand {
+
+    private List<AbstractCommand> subCommands = new ArrayList<>();
+
+    public String label() { return "guild"; }
+
+    //
+
+    public GuildCommand() {
+        try {
+            this.registerChildCommand(new JoinCommand());
+            this.registerChildCommand(new LeaveCommand());
+//            this.registerChildCommand(new ConfigCommand());
+        } catch(ChildCommandAlreadyRegisteredException e) {
+
+        }
+    }
+
+    //
+
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player player))
-            return false;
+    protected List<String> whenTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
+        return null;
+    }
 
-        if (args.length < 2) {
-            player.sendMessage("Nombre d'arguments invalide");
-        }
+    @Override
+    protected boolean whenCommand(CommandSender sender, Command command, String label, String[] args) {
+        sender.sendMessage("Syntax error : /guild [join|leave|get]");
 
-        if (args[1].equals("join")) {
-
-        }
-
-        player.sendMessage("HELLO");
         return true;
     }
 }

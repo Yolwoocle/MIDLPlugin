@@ -51,6 +51,10 @@ public class GuildManager {
         config.set(name, null);
     }
 
+    public List<Guild> getGuilds() {
+        return List.copyOf(this.guilds.values());
+    }
+
     public boolean joinGuild(String name, OfflinePlayer player) {
         if (this.hasGuild(player)) return false;
 

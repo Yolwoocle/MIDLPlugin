@@ -9,7 +9,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 
 public final class PluginMain extends JavaPlugin {
 
@@ -19,6 +18,8 @@ public final class PluginMain extends JavaPlugin {
     public void onEnable() {
         instance = this;
 
+        // Initialize
+        GuildManager.getInstance().reloadGuilds();
 
         // Register configs
         Configs.register("guilds");
@@ -39,7 +40,7 @@ public final class PluginMain extends JavaPlugin {
         // Plugin shutdown logic
     }
 
-    public static MIDLPlugin getInstance() {
+    public static PluginMain getInstance() {
         return instance;
     }
 
