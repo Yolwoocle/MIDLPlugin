@@ -1,6 +1,6 @@
 package com.yolwoocle.midlplugin.util;
 
-import com.yolwoocle.midlplugin.PluginMain;
+import com.yolwoocle.midlplugin.MIDLPlugin;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -20,8 +20,8 @@ public class Configs {
         configsFile.clear();
         configs.clear();
         for (String config : configsName) {
-            File file = new File(PluginMain.getInstance().getDataFolder()+ "/" + config + ".yml");
-            if (!file.isFile()) PluginMain.getInstance().saveResource(config + ".yml", true);
+            File file = new File(MIDLPlugin.getInstance().getDataFolder()+ "/" + config + ".yml");
+            if (!file.isFile()) MIDLPlugin.getInstance().saveResource(config + ".yml", true);
 
             configsFile.put(config, file);
             configs.put(config, YamlConfiguration.loadConfiguration(file));
@@ -52,7 +52,7 @@ public class Configs {
         try {
             configs.get(config).save(configsFile.get(config));
         } catch (IOException e) {
-            PluginMain.getInstance().getLogger().severe("Could not save config " + config);
+            MIDLPlugin.getInstance().getLogger().severe("Could not save config " + config);
         }
     }
 

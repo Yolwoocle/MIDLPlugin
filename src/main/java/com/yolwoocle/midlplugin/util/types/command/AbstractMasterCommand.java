@@ -1,4 +1,4 @@
-package com.yolwoocle.midlplugin.util.types;
+package com.yolwoocle.midlplugin.util.types.command;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -10,14 +10,14 @@ import java.util.Map;
 
 public abstract class AbstractMasterCommand extends AbstractCommand {
 
-    public static class ChildCommandAlreadyRegisteredException extends Exception {
+    public static class ChildCommandAlreadyRegisteredException extends RuntimeException {
         public ChildCommandAlreadyRegisteredException() { super(); }
         public ChildCommandAlreadyRegisteredException(String message) { super(message); }
         public ChildCommandAlreadyRegisteredException(String message, Throwable cause) { super(message, cause); }
         public ChildCommandAlreadyRegisteredException(Throwable cause) { super(cause); }
     }
 
-    public static class ChildCommandNotRegisteredException extends Exception {
+    public static class ChildCommandNotRegisteredException extends RuntimeException {
         public ChildCommandNotRegisteredException() { super(); }
         public ChildCommandNotRegisteredException(String message) { super(message); }
         public ChildCommandNotRegisteredException(String message, Throwable cause) { super(message, cause); }
@@ -33,24 +33,25 @@ public abstract class AbstractMasterCommand extends AbstractCommand {
     @Override
     public abstract String label();
 
-    @Override
-    protected abstract List<String> whenTabComplete(CommandSender sender, Command cmd, String label, String[] args);
+//    @Override
+//    protected abstract List<String> whenTabComplete(CommandSender sender, Command cmd, String label, String[] args, String[] labelPath);
 
-    @Override
-    protected abstract boolean whenCommand(CommandSender sender, Command cmd, String label, String[] args);
+//    @Override
+//    protected abstract boolean whenCommand(CommandSender sender, Command cmd, String label, String[] args, String[] labelPath);
 
     //
-
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
         List<String> result = new ArrayList<>();
 
         List<String> childResult = this.handleChildCommandTabCompletion(sender, cmd, label, args);
-        if(childResult != null) result.addAll(childResult);
 
-        List<String> selfResult = super.onTabComplete(sender, cmd, label, args);
-        if(selfResult != null) result.addAll(selfResult);
+        if(childResult != null && !childResult.isEmpty()) result.addAll(childResult);
+        else {
+            List<String> selfResult = super.onTabComplete(sender, cmd, label, args);
+            if (selfResult != null) result.addAll(selfResult);
+        }
 
         return result;
     }
@@ -68,7 +69,7 @@ public abstract class AbstractMasterCommand extends AbstractCommand {
 
     public void registerChildCommand(AbstractCommand childCommand) throws ChildCommandAlreadyRegisteredException {
         if(this.isChildCommandRegistered(childCommand)) {
-            throw new AbstractMasterCommand.ChildCommandAlreadyRegisteredException();
+            throw new ChildCommandAlreadyRegisteredException();
         }
 
         this.childCommandMap.put(childCommand.label(), childCommand);
@@ -76,7 +77,7 @@ public abstract class AbstractMasterCommand extends AbstractCommand {
 
     public void unregisterChildCommand(AbstractCommand childCommand) throws ChildCommandNotRegisteredException {
         if(!this.isChildCommandRegistered(childCommand)) {
-            throw new AbstractMasterCommand.ChildCommandNotRegisteredException();
+            throw new ChildCommandNotRegisteredException();
         }
 
         this.childCommandMap.remove(childCommand.label());
@@ -92,51 +93,43 @@ public abstract class AbstractMasterCommand extends AbstractCommand {
 
     //
 
-    private List<String> handleChildCommandTabCompletion(CommandSender sender, Command cmd, String parentLabel, String[] parentArgs) {
-        if(parentArgs.length == 0) {
-            List<String> result = new ArrayList<>();
-
-            for(AbstractCommand childCommand : this.childCommandMap.values()) {
-                result.add(childCommand.label());
-            }
-
-            return  result;
+    private List<String> handleChildCommandTabCompletion(CommandSender sender, Command cmd, String parentRawLabel, String[] parentArgs) {
+        if(parentArgs.length <= 1) {
+            return this.childCommandMap.values().stream().map(AbstractCommand::label).toList();
         }
         else {
             String[] childArgs = new String[parentArgs.length-1];
             for(int i = 1; i < parentArgs.length; ++i) childArgs[i-1] = parentArgs[i];
 
-            return this.onTabComplete(sender, cmd, parentArgs[0], childArgs);
+            String childLabel = parentArgs[0];
+            String childRawLabel = parentRawLabel + " " + childLabel;
+            return this.callChildCommandTabCompletion(sender, cmd, childRawLabel, childLabel, childArgs);
         }
     }
 
-    public List<String> callChildCommandTabCompletion(CommandSender sender, Command cmd, String childLabel, String[] childArgs) {
+    public List<String> callChildCommandTabCompletion(CommandSender sender, Command cmd, String childRawLabel, String childLabel, String[] childArgs) {
         AbstractCommand childCommand = this.childCommandMap.get(childLabel);
-        if(childCommand != null) {
-            return childCommand.onTabComplete(sender, cmd, childLabel, childArgs);
-        }
-        else return null;
+        return childCommand != null ? childCommand.onTabComplete(sender, cmd, childRawLabel, childArgs) : null;
     }
 
     //
 
-    private boolean handleChildCommand(CommandSender sender, Command cmd, String parentLabel, String[] parentArgs) {
+    private boolean handleChildCommand(CommandSender sender, Command cmd, String parentRawLabel, String[] parentArgs) {
         if(parentArgs.length == 0) {
             return false;
         }
         else {
             String[] childArgs = new String[parentArgs.length-1];
-            for(int i = 1; i < parentArgs.length; ++i) childArgs[i-1] = parentArgs[i];
+            System.arraycopy(parentArgs, 1, childArgs, 0, parentArgs.length - 1);
 
-            return this.callChildCommand(sender, cmd, parentArgs[0], childArgs);
+            String childLabel = parentArgs[0];
+            String childRawLabel = parentRawLabel + " " + childLabel;
+            return this.callChildCommand(sender, cmd, childRawLabel, childLabel, childArgs);
         }
     }
 
-    public boolean callChildCommand(CommandSender sender, Command cmd, String childLabel, String[] childArgs) {
+    public boolean callChildCommand(CommandSender sender, Command cmd, String childRawLabel, String childLabel, String[] childArgs) {
         AbstractCommand childCommand = this.childCommandMap.get(childLabel);
-        if(childCommand != null) {
-            return childCommand.onCommand(sender, cmd, childLabel, childArgs);
-        }
-        else return false;
+        return childCommand != null && childCommand.onCommand(sender, cmd, childRawLabel, childArgs);
     }
 }

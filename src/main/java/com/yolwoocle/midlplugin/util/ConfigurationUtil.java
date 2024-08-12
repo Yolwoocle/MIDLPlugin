@@ -35,12 +35,10 @@ public class ConfigurationUtil {
             return null;
 
         String color = section.getString(path);
-        if (color == null || color.length() != 7 || color.charAt(0) != '#')
-            return null;
 
         try {
-            return Color.fromRGB(Integer.parseInt(color.substring(1), 16));
-        } catch (NumberFormatException e) {
+            return ChatUtil.parseColor(color);
+        } catch (Exception e) {
             return null;
         }
     }

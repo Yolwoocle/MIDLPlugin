@@ -19,14 +19,22 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 
 
 public class GuildMemberListener implements Listener {
+    @EventHandler
+    public void playerJoinServer(PlayerJoinEvent event) {
+        GuildMember member = GuildManager.getInstance().getMember(event.getPlayer());
+        if (member == null)
+            return;
+        member.getGuild().onMemberJoinServer(member);
+    }
 
     @EventHandler
-    public void playerKillPlayer(PlayerDeathEvent e)
+    public void playerKillPlayer(PlayerDeathEvent event)
     {
-        Player victim = e.getEntity();
+        Player victim = event.getEntity();
         GuildManager guildManager = GuildManager.getInstance();
         GuildMember victimMember = guildManager.getMember(victim);
 
@@ -35,7 +43,7 @@ public class GuildMemberListener implements Listener {
 
         victimMember.addDeaths(1);
 
-        Entity killerEntity = e.getEntity().getKiller();
+        Entity killerEntity = event.getEntity().getKiller();
         if (!(killerEntity instanceof Player killer))
             return;
 

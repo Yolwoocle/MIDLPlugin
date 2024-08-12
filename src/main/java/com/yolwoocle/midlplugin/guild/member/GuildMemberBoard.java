@@ -22,11 +22,14 @@ public class GuildMemberBoard {
     }
 
     public void update() {
+        if (this.fastBoard == null)
+             return;
+
         this.fastBoard.updateTitle(ChatColor.GOLD + "" + ChatColor.BOLD + "MIDL");
         this.fastBoard.updateLines(
                 "",
-                "test",
-                String.format("Kills %d", this.guildMember.getKills())
+                String.format("Guilde : %s", this.guildMember.getGuild().getDisplayName()),
+                String.format("Kills : %d", this.guildMember.getKills())
         );
     }
 

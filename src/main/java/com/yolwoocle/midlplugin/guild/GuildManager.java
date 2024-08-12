@@ -2,13 +2,11 @@ package com.yolwoocle.midlplugin.guild;
 
 import com.yolwoocle.midlplugin.guild.member.GuildMember;
 import com.yolwoocle.midlplugin.util.Configs;
-import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -16,8 +14,6 @@ import java.util.UUID;
 public class GuildManager {
 
     private static GuildManager instance;
-
-    private final FileConfiguration config = getConfig();
     private final HashMap<String, Guild> guilds = new HashMap<>();
     private final HashMap<UUID, GuildMember> guildMemberMap = new HashMap<>();
 
@@ -36,6 +32,8 @@ public class GuildManager {
         this.guilds.clear();
         this.guildMemberMap.clear();
 
+        final FileConfiguration config = getConfig();
+
         for (String key : config.getKeys(false)) {
             ConfigurationSection section = config.getConfigurationSection(key);
             if (section == null) continue;
@@ -45,13 +43,20 @@ public class GuildManager {
         }
     }
 
-    public void createGuild(String name, Color color) {
-        this.guilds.put(name, new Guild(name, color));
+    public void createGuild(String name) {
+        this.guilds.put(name, new Guild(name));
     }
 
-    public void deleteGuild(String name) {
+    public boolean deleteGuild(String name) {
+        Guild guild = this.getGuild(name);
+        if (guild == null)
+            return false;
+
+        guild.forEachMember((member) -> this.leaveGuild(member.getPlayer()));
         this.guilds.remove(name);
-        config.set(name, null);
+        getConfig().set(name, null);
+
+        return true;
     }
 
     public List<Guild> getGuilds() {
@@ -82,7 +87,13 @@ public class GuildManager {
     }
 
     public Guild getGuild(OfflinePlayer player) {
-        return this.guildMemberMap.get(player.getUniqueId()).getGuild();
+        if (player == null)
+            return null;
+        GuildMember guildMember = this.guildMemberMap.get(player.getUniqueId());
+        if (guildMember == null)
+            return null;
+
+        return guildMember.getGuild();
     }
 
     public boolean hasGuild(OfflinePlayer player) {

@@ -1,8 +1,15 @@
 package com.yolwoocle.midlplugin.guild.member;
 
 import com.yolwoocle.midlplugin.guild.Guild;
+import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.advancement.Advancement;
+import org.bukkit.advancement.AdvancementProgress;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
+
+import java.util.Collection;
 
 public class GuildMember {
     private final ConfigurationSection section;
@@ -34,6 +41,30 @@ public class GuildMember {
 
     public Guild getGuild() {
         return guild;
+    }
+
+    public void awardAdvancements(Collection<NamespacedKey> advancements) {
+        for (NamespacedKey key: advancements) {
+            this.awardAdvancement(key);
+        }
+    }
+    
+    public void awardAdvancement(NamespacedKey key) {
+        Advancement advancement = Bukkit.getAdvancement(key);
+        if (advancement == null)
+            return;
+
+        this.awardAdvancement(advancement);
+    }
+
+    public void awardAdvancement(Advancement advancement) {
+        Player player = this.player.getPlayer();
+        if (player == null)
+            return;
+
+        AdvancementProgress progress = player.getAdvancementProgress(advancement);
+        for (String criteria : progress.getRemainingCriteria())
+            progress.awardCriteria(criteria);
     }
 
     public int getKills() {

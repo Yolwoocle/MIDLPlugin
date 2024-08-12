@@ -1,33 +1,33 @@
 package com.yolwoocle.midlplugin.guild;
 
 import com.yolwoocle.midlplugin.guild.member.GuildMember;
-import com.yolwoocle.midlplugin.util.Configs;
+import com.yolwoocle.midlplugin.util.ChatUtil;
 import com.yolwoocle.midlplugin.util.ConfigurationUtil;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Color;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.*;
+import org.bukkit.advancement.Advancement;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.scoreboard.Team;
 import org.bukkit.util.BoundingBox;
 
-import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Consumer;
 
 public class Guild {
     private final ConfigurationSection section;
     private final HashMap<UUID, GuildMember> members = new HashMap<>();
-    private final Color color;
+    private Color color;
     private final Team team;
     private final BoundingBox boundingBox;
     private final String name;
+    private final HashSet<NamespacedKey> advancements = new HashSet<>();
 
     public Guild(ConfigurationSection section) {
         this.section = section;
         this.name = section.getName();
         this.boundingBox = ConfigurationUtil.getBoundingBox(section.getConfigurationSection("bounding-box"));
         this.color = ConfigurationUtil.getColor(section, "color");
-        this.team = Bukkit.getScoreboardManager().getNewScoreboard().registerNewTeam(this.name);
+        this.team = createTeam();
 
         if (boundingBox == null) {
             throw new IllegalArgumentException("Bounding box is null");
@@ -45,12 +45,12 @@ public class Guild {
         }
     }
 
-    public Guild(String name, Color color) {
-        this.team = Bukkit.getScoreboardManager().getNewScoreboard().registerNewTeam(name);
+    public Guild(String name) {
         this.section = GuildManager.getConfig().createSection(name);
         this.boundingBox = new BoundingBox(0, 0, 0, 0, 0, 0);
-        this.color = color;
+        this.color = Color.WHITE;
         this.name = name;
+        this.team = createTeam();
 
         ConfigurationUtil.setBoundingBox(this.section, "bounding-box", boundingBox);
         ConfigurationUtil.setColor(this.section, "color", color);
@@ -58,13 +58,28 @@ public class Guild {
 
         GuildManager.saveConfig();
     }
-    
+
+    private Team createTeam() {
+        ScoreboardManager scoreboardManager = Bukkit.getScoreboardManager();
+        assert scoreboardManager != null;
+
+        Team team = scoreboardManager.getNewScoreboard().registerNewTeam(this.name);
+        team.setPrefix(ChatColor.WHITE + "[" + this.getDisplayName() + ChatColor.WHITE + "] " + ChatUtil.colorToString(this.color));
+        team.setCanSeeFriendlyInvisibles(true);
+        team.setAllowFriendlyFire(false);
+        return team;
+    }
+
     public GuildMember addPlayer(OfflinePlayer player) {
         this.team.addEntry(player.getName());
         ConfigurationSection players = this.section.getConfigurationSection("players");
         GuildMember member = this.members.putIfAbsent(player.getUniqueId(),
                 new GuildMember(players.createSection(player.getUniqueId().toString()), this, player));
         GuildManager.saveConfig();
+
+        if (member != null) {
+            member.awardAdvancements(this.advancements);
+        }
         return member;
     }
 
@@ -76,7 +91,49 @@ public class Guild {
         return this.members.remove(player.getUniqueId());
     }
 
+    public void forEachMember(Consumer<GuildMember> consumer) {
+        for (GuildMember member: this.members.values()) {
+            consumer.accept(member);
+        }
+    }
+
+    public void onMemberJoinServer(GuildMember member) {
+        member.awardAdvancements(this.advancements);
+    }
+
+    public void onNewAdvancementDone(Advancement advancement) {
+        this.advancements.add(advancement.getKey());
+
+        this.forEachMember((member) -> {
+            member.awardAdvancement(advancement);
+        });
+    }
+
+    public ConfigurationSection getSection() {
+        return section;
+    }
+
+    public HashSet<NamespacedKey> getAdvancements() {
+        return advancements;
+    }
+
+    public Team getTeam() {
+        return team;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
+    }
+
     public String getName() { return this.name; }
+
+    public String getDisplayName() {
+        return ChatUtil.colorToString(color) + this.name + ChatColor.RESET;
+    }
 
     public GuildMember getMember(OfflinePlayer player) {
         return this.members.get(player.getUniqueId());
@@ -88,6 +145,18 @@ public class Guild {
 
     public boolean hasMember(OfflinePlayer player) {
         return this.members.containsKey(player.getUniqueId());
+    }
+    
+    public int getKills() {
+        return this.members.values().stream().mapToInt(GuildMember::getKills).sum();
+    }
+
+    public int getDeaths() {
+        return this.members.values().stream().mapToInt(GuildMember::getDeaths).sum();
+    }
+
+    public double getMoney() {
+        return this.members.values().stream().mapToDouble(GuildMember::getMoney).sum();
     }
 
     public BoundingBox getBoundingBox() {

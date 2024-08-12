@@ -9,19 +9,21 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Objects;
 
-public final class PluginMain extends JavaPlugin {
+public final class MIDLPlugin extends JavaPlugin {
 
-    private static PluginMain instance;
+    private static MIDLPlugin instance;
 
     @Override
     public void onEnable() {
         instance = this;
 
-        // Initialize
-        GuildManager.getInstance().reloadGuilds();
-
         // Register configs
         Configs.register("guilds");
+        Configs.register("game");
+        Configs.reload();
+
+        // Initialize
+        GuildManager.getInstance().reloadGuilds();
 
         // Register listeners
         PluginManager pm = getServer().getPluginManager();
@@ -39,7 +41,7 @@ public final class PluginMain extends JavaPlugin {
         // Plugin shutdown logic
     }
 
-    public static PluginMain getInstance() {
+    public static MIDLPlugin getInstance() {
         return instance;
     }
 
