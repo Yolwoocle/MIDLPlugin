@@ -1,5 +1,6 @@
-package com.yolwoocle.midlplugin.util.types.command;
+package com.yolwoocle.midlplugin.utils.types.command;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -82,7 +83,10 @@ public abstract class AbstractCommand implements CommandExecutor, TabCompleter {
 
         List<String> result = new ArrayList<>();
         for(CommandSyntax syntax : this.syntaxes) {
-            List<String> syntaxResult = syntax.getParameter(args.length).completer().complete(sender, cmd, label, args, labelPath);
+            CommandSyntax.Parameter parameter = syntax.getParameter(args.length-1);
+            CommandCompleter completer = parameter != null ? parameter.completer() : null;
+            List<String> syntaxResult = completer != null ? completer.complete(sender, cmd, label, args, labelPath) : null;
+            if(syntaxResult != null) result.addAll(syntaxResult);
         }
 
         return result;

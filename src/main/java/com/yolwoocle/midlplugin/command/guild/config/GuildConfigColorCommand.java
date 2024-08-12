@@ -1,12 +1,12 @@
 package com.yolwoocle.midlplugin.command.guild.config;
 
-import com.yolwoocle.midlplugin.util.types.command.AbstractCommand;
+import com.yolwoocle.midlplugin.utils.types.command.AbstractCommand;
 import org.bukkit.Color;
 
 import java.util.HashMap;
 
 public class GuildConfigColorCommand extends AbstractCommand {
-    private HashMap<String, Color> defaultColors;
+    private HashMap<String, Color> defaultColors = new HashMap<>();
 
     public GuildConfigColorCommand() {
         this.defaultColors.put("white", Color.WHITE);

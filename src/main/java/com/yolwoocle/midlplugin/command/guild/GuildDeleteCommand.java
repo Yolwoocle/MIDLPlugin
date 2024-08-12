@@ -2,16 +2,9 @@ package com.yolwoocle.midlplugin.command.guild;
 
 import com.yolwoocle.midlplugin.guild.Guild;
 import com.yolwoocle.midlplugin.guild.GuildManager;
-import com.yolwoocle.midlplugin.util.types.command.AbstractCommand;
-import com.yolwoocle.midlplugin.util.types.command.CommandOption;
-import com.yolwoocle.midlplugin.util.types.command.CommandSyntax;
+import com.yolwoocle.midlplugin.utils.types.command.AbstractCommand;
+import com.yolwoocle.midlplugin.utils.types.command.CommandSyntax;
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-
-import java.util.List;
-import java.util.Set;
 
 public class GuildDeleteCommand extends AbstractCommand {
 

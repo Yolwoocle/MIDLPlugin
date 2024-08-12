@@ -1,13 +1,9 @@
 package com.yolwoocle.midlplugin.command.guild;
 
 import com.yolwoocle.midlplugin.guild.GuildManager;
-import com.yolwoocle.midlplugin.util.types.command.AbstractCommand;
-import com.yolwoocle.midlplugin.util.types.command.CommandSyntax;
+import com.yolwoocle.midlplugin.utils.types.command.AbstractCommand;
+import com.yolwoocle.midlplugin.utils.types.command.CommandSyntax;
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-
-import java.util.List;
 
 public class GuildCreateCommand extends AbstractCommand {
 

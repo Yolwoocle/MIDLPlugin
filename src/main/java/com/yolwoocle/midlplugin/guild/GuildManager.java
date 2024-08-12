@@ -1,7 +1,8 @@
 package com.yolwoocle.midlplugin.guild;
 
 import com.yolwoocle.midlplugin.guild.member.GuildMember;
-import com.yolwoocle.midlplugin.util.Configs;
+import com.yolwoocle.midlplugin.utils.Configs;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
@@ -67,13 +68,17 @@ public class GuildManager {
         if (this.hasGuild(player)) return false;
 
         GuildMember guildMember = this.guilds.get(name).addPlayer(player);
-        this.guildMemberMap.putIfAbsent(player.getUniqueId(), guildMember);
+        this.guildMemberMap.put(player.getUniqueId(), guildMember);
+        for(UUID uuid : this.guildMemberMap.keySet()) Bukkit.getLogger().info(uuid.toString());
+        Bukkit.getLogger().info("" + guildMember);
 
         return true;
     }
 
     public boolean leaveGuild(OfflinePlayer player) {
-        GuildMember member = getMember(player);
+        GuildMember member = this.getMember(player);
+        Bukkit.getLogger().info("" + member);
+        for(UUID uuid : this.guildMemberMap.keySet()) Bukkit.getLogger().info(uuid.toString());
         if (member == null) return false;
 
         member.getGuild().removePlayer(player);
@@ -87,11 +92,10 @@ public class GuildManager {
     }
 
     public Guild getGuild(OfflinePlayer player) {
-        if (player == null)
-            return null;
+        if (player == null)  return null;
+
         GuildMember guildMember = this.guildMemberMap.get(player.getUniqueId());
-        if (guildMember == null)
-            return null;
+        if (guildMember == null) return null;
 
         return guildMember.getGuild();
     }

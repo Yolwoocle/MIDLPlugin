@@ -1,4 +1,4 @@
-package com.yolwoocle.midlplugin.util;
+package com.yolwoocle.midlplugin.utils;
 
 import org.bukkit.Color;
 

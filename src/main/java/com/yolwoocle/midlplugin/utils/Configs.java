@@ -1,4 +1,4 @@
-package com.yolwoocle.midlplugin.util;
+package com.yolwoocle.midlplugin.utils;
 
 import com.yolwoocle.midlplugin.MIDLPlugin;
 import org.bukkit.configuration.file.FileConfiguration;

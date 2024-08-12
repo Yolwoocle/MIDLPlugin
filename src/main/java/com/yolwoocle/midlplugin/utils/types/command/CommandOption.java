@@ -1,4 +1,4 @@
-package com.yolwoocle.midlplugin.util.types.command;
+package com.yolwoocle.midlplugin.utils.types.command;
 
 public enum CommandOption {
     PLAYER_SIDE_ONLY,

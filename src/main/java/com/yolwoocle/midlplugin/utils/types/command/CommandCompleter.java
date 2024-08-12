@@ -1,4 +1,4 @@
-package com.yolwoocle.midlplugin.util.types.command;
+package com.yolwoocle.midlplugin.utils.types.command;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

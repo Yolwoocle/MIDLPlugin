@@ -3,7 +3,7 @@ package com.yolwoocle.midlplugin;
 import com.yolwoocle.midlplugin.command.GuildCommand;
 import com.yolwoocle.midlplugin.guild.GuildManager;
 import com.yolwoocle.midlplugin.listener.GuildMemberListener;
-import com.yolwoocle.midlplugin.util.Configs;
+import com.yolwoocle.midlplugin.utils.Configs;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 

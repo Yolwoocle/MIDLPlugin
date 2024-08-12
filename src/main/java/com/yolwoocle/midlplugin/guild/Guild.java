@@ -1,8 +1,8 @@
 package com.yolwoocle.midlplugin.guild;
 
 import com.yolwoocle.midlplugin.guild.member.GuildMember;
-import com.yolwoocle.midlplugin.util.ChatUtil;
-import com.yolwoocle.midlplugin.util.ConfigurationUtil;
+import com.yolwoocle.midlplugin.utils.ChatUtil;
+import com.yolwoocle.midlplugin.utils.ConfigurationUtil;
 import org.bukkit.*;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.configuration.ConfigurationSection;
@@ -73,8 +73,10 @@ public class Guild {
     public GuildMember addPlayer(OfflinePlayer player) {
         this.team.addEntry(player.getName());
         ConfigurationSection players = this.section.getConfigurationSection("players");
-        GuildMember member = this.members.putIfAbsent(player.getUniqueId(),
-                new GuildMember(players.createSection(player.getUniqueId().toString()), this, player));
+
+        GuildMember member = new GuildMember(players.createSection(player.getUniqueId().toString()), this, player);
+        this.members.putIfAbsent(player.getUniqueId(), member);
+
         GuildManager.saveConfig();
 
         if (member != null) {
