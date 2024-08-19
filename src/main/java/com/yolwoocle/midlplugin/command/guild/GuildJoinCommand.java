@@ -12,11 +12,10 @@ import java.util.Set;
 
 public class GuildJoinCommand extends AbstractCommand {
 
-    @Override
-    public String label() { return "join"; }
-
     public GuildJoinCommand() {
-        super(Set.of(CommandOption.PLAYER_SIDE_ONLY));
+        super("join", Set.of(CommandOption.PLAYER_SIDE_ONLY));
+
+        this.addPermission("midl.guild.command.join");
 
         this.registerSyntax(
             new CommandSyntax()

@@ -5,19 +5,13 @@ import com.yolwoocle.midlplugin.utils.types.command.AbstractMasterCommand;
 
 public class GuildConfigCommand extends AbstractMasterCommand {
     public GuildConfigCommand() {
+        super("config");
+
         try {
             this.registerChildCommand(new GuildConfigColorCommand());
         } catch (ChildCommandAlreadyRegisteredException e) {
 
         }
     }
-
-    @Override
-    public String label() { return "config"; }
-
-//    @Override
-//    protected boolean whenCommand(CommandSender sender, Command cmd, String label, String[] args) {
-//        return false;
-//    }
 
 }

@@ -10,12 +10,9 @@ import java.util.List;
 
 public class GuildListCommand extends AbstractMasterCommand {
 
-    @Override
-    public String label() {
-        return "list";
-    }
-
     public GuildListCommand() {
+        super("list");
+
         this.registerSyntax(
             new CommandSyntax()
                 .setAction((sender, cmd, label, argumentMap, labelPath) -> {

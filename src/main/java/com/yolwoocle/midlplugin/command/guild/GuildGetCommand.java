@@ -4,9 +4,8 @@ import com.yolwoocle.midlplugin.utils.types.command.AbstractMasterCommand;
 
 public class GuildGetCommand extends AbstractMasterCommand {
 
-    @Override
-    public String label() {
-        return "get";
+    protected GuildGetCommand() {
+        super("get");
     }
 
 //    @Override

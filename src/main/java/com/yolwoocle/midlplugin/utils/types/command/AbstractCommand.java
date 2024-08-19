@@ -1,6 +1,5 @@
 package com.yolwoocle.midlplugin.utils.types.command;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -34,24 +33,32 @@ public abstract class AbstractCommand implements CommandExecutor, TabCompleter {
 
     //
 
+    private final String label;
     private final Set<CommandOption> options;
+
+    private CommandLocaleRegistry locales = new CommandLocaleRegistry();
+
+    private final List<String> permissions = new ArrayList<>();
     private final List<CommandSyntax> syntaxes = new ArrayList<>();
     
     //    
     
-    protected AbstractCommand() {
-        this(Set.of());
+    protected AbstractCommand(String label) {
+        this(label, Set.of());
     }
 
-    protected AbstractCommand(Set<CommandOption> options) {
+    protected AbstractCommand(String label, Set<CommandOption> options) {
+        this.label = label;
         this.options = options;
     }
 
     //
 
-    public abstract String label();
+    public String label() { return label; };
 
     public Set<CommandOption> options() { return this.options; }
+
+    public CommandLocaleRegistry locales() { return this.locales; }
 
     //
 
@@ -71,6 +78,30 @@ public abstract class AbstractCommand implements CommandExecutor, TabCompleter {
 
     //
 
+    public AbstractCommand addPermission(String permission) {
+        if(!this.permissions.contains(permission)) this.permissions.add(permission);
+        return this;
+    }
+
+    public AbstractCommand removePermission(String permission) {
+        this.permissions.remove(permission);
+        return this;
+    }
+
+    public boolean checkPermissions(CommandSender sender) {
+        int permissionCount = this.permissions.size();
+        boolean hasPermission = false;
+
+        for(int i = 0; i < permissionCount && !hasPermission; ++i) {
+            String permission = this.permissions.get(i);
+            hasPermission = sender.hasPermission(permission);
+        }
+
+        return hasPermission;
+    }
+
+    //
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String rawLabel, String[] args) {
         if(
@@ -78,8 +109,16 @@ public abstract class AbstractCommand implements CommandExecutor, TabCompleter {
             || ( this.options().contains(CommandOption.SERVER_SIDE_ONLY) && (sender instanceof Player) )
         ) return null;
 
+        //
+
+        if(!this.checkPermissions(sender)) return null;
+
+        //
+
         String label = extractLastLabel(rawLabel);
         String[] labelPath = extractLabelPath(rawLabel);
+
+        //
 
         List<String> result = new ArrayList<>();
         for(CommandSyntax syntax : this.syntaxes) {
@@ -89,14 +128,14 @@ public abstract class AbstractCommand implements CommandExecutor, TabCompleter {
             if(syntaxResult != null) result.addAll(syntaxResult);
         }
 
-        return result;
-//        return this.whenTabComplete(sender, cmd, extractLastLabel(rawLabel), args, extractLabelPath(rawLabel));
-    }
+        //
 
-//    protected abstract List<String> whenTabComplete(CommandSender sender, Command cmd, String label, String[] args, String[] labelPath);
+        return result;
+    }
 
     //
 
+    @Override
     public boolean onCommand(CommandSender sender, Command cmd, String rawLabel, String[] args) {
         if(this.options().contains(CommandOption.PLAYER_SIDE_ONLY) && !(sender instanceof Player)) {
             sender.sendMessage(ChatColor.RED + "This command is player-side only.");
@@ -107,18 +146,32 @@ public abstract class AbstractCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
+        //
+
+        if(!this.checkPermissions(sender)) {
+            sender.sendMessage(this.locales().used().get(CommandLocale.DefaultLocaleKey.MISSING_PERMISSION.key()));
+            return true;
+        }
+
+        //
+
         String label = extractLastLabel(rawLabel);
         String[] labelPath = extractLabelPath(rawLabel);
 
+        //
+
         List<String> syntaxMessages = new ArrayList<>();
+        int syntaxCount = this.syntaxes.size();
         boolean hasSuccessSyntax = false;
-        for(int i = 0; i < this.syntaxes.size() && !hasSuccessSyntax; ++i) {
+        for(int i = 0; i < syntaxCount && !hasSuccessSyntax; ++i) {
             CommandSyntax syntax = this.syntaxes.get(i);
             hasSuccessSyntax = syntax.handle(sender, cmd, label, args, labelPath);
             if(!hasSuccessSyntax) syntaxMessages.add(syntax.generateSyntaxMessage(labelPath));
         }
 
-        if(!hasSuccessSyntax) {
+        //
+
+        if(!hasSuccessSyntax && syntaxCount > 0) {
             StringBuilder syntaxErrorMessageBuilder = new StringBuilder();
 
             syntaxErrorMessageBuilder.append(ChatColor.RED + "Syntax error, please use one of these :");
@@ -127,10 +180,10 @@ public abstract class AbstractCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(syntaxErrorMessageBuilder.toString());
         }
 
+        //
+
         return true;
     }
-
-//    protected abstract boolean whenCommand(CommandSender sender, Command cmd, String label, String[] args, String[] labelPath);
 
 }
 

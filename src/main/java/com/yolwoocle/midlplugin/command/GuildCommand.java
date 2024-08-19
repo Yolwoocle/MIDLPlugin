@@ -5,11 +5,9 @@ import com.yolwoocle.midlplugin.utils.types.command.AbstractMasterCommand;
 
 public class GuildCommand extends AbstractMasterCommand {
 
-    public String label() { return "guild"; }
-
-    //
-
     public GuildCommand() {
+        super("guild");
+
         try {
             this.registerChildCommand(new GuildJoinCommand());
             this.registerChildCommand(new GuildLeaveCommand());

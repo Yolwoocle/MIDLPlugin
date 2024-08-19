@@ -8,13 +8,8 @@ import org.bukkit.ChatColor;
 
 public class GuildDeleteCommand extends AbstractCommand {
 
-    @Override
-    public String label() {
-        return "delete";
-    }
-
     public GuildDeleteCommand() {
-//        super(Set.of(CommandOption.PLAYER_SIDE_ONLY));
+        super("delete");
 
         this.registerSyntax(
             new CommandSyntax()

@@ -11,11 +11,8 @@ import java.util.Set;
 
 public class GuildLeaveCommand extends AbstractCommand {
 
-    @Override
-    public String label() { return "leave"; }
-
     public GuildLeaveCommand() {
-        super(Set.of(CommandOption.PLAYER_SIDE_ONLY));
+        super("leave", Set.of(CommandOption.PLAYER_SIDE_ONLY));
 
         this.registerSyntax(
             new CommandSyntax()

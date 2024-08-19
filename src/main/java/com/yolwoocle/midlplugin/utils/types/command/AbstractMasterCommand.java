@@ -3,12 +3,18 @@ package com.yolwoocle.midlplugin.utils.types.command;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Method;
+import java.util.*;
 
 public abstract class AbstractMasterCommand extends AbstractCommand {
+
+    private interface CommandSpecificHandler<R> {
+
+        R handle(CommandSender sender, Command cmd, String label, String[] args);
+
+    }
+
+    //
 
     public static class ChildCommandAlreadyRegisteredException extends RuntimeException {
         public ChildCommandAlreadyRegisteredException() { super(); }
@@ -26,18 +32,41 @@ public abstract class AbstractMasterCommand extends AbstractCommand {
 
     //
 
-    private Map<String, AbstractCommand> childCommandMap = new HashMap<>();
+    public static String extractChildCommandLabel(String[] parentArgs) {
+        if(parentArgs.length == 0) throw new IllegalArgumentException("Parent arguments must have at least 1 element.");
+        return parentArgs[0];
+    }
+
+    public static String[] extractChildCommandArguments(String[] parentArgs) {
+        if(parentArgs.length == 0) throw new IllegalArgumentException("Parent arguments must have at least 1 element.");
+
+        String[] childArgs = new String[parentArgs.length-1];
+        System.arraycopy(parentArgs, 1, childArgs, 0, parentArgs.length - 1);
+
+        return childArgs;
+    }
+
+    public static String genChildCommandRawLabel(String parentRawLabel, String[] parentArgs) {
+        return genChildCommandRawLabel(parentRawLabel, extractChildCommandLabel(parentArgs));
+    }
+
+    public static String genChildCommandRawLabel(String parentRawLabel, String childLabel) {
+        return parentRawLabel + " " + childLabel;
+    }
 
     //
 
-    @Override
-    public abstract String label();
+    private final Map<String, AbstractCommand> childCommandMap = new HashMap<>();
 
-//    @Override
-//    protected abstract List<String> whenTabComplete(CommandSender sender, Command cmd, String label, String[] args, String[] labelPath);
+    //
 
-//    @Override
-//    protected abstract boolean whenCommand(CommandSender sender, Command cmd, String label, String[] args, String[] labelPath);
+    protected AbstractMasterCommand(String label) {
+        super(label);
+    }
+
+    protected AbstractMasterCommand(String label, Set<CommandOption> options) {
+        super(label, options);
+    }
 
     //
 
@@ -87,6 +116,8 @@ public abstract class AbstractMasterCommand extends AbstractCommand {
         return this.childCommandMap.containsKey(childCommand.label());
     }
 
+    //
+
     public AbstractCommand getRegisteredChildCommandByLabel(String label) {
         return this.childCommandMap.get(label);
     }
@@ -98,18 +129,11 @@ public abstract class AbstractMasterCommand extends AbstractCommand {
             return this.childCommandMap.values().stream().map(AbstractCommand::label).toList();
         }
         else {
-            String[] childArgs = new String[parentArgs.length-1];
-            for(int i = 1; i < parentArgs.length; ++i) childArgs[i-1] = parentArgs[i];
+            String childLabel = AbstractMasterCommand.extractChildCommandLabel(parentArgs);
+            AbstractCommand childCommand = this.getRegisteredChildCommandByLabel(childLabel);
 
-            String childLabel = parentArgs[0];
-            String childRawLabel = parentRawLabel + " " + childLabel;
-            return this.callChildCommandTabCompletion(sender, cmd, childRawLabel, childLabel, childArgs);
+            return childCommand != null ? childCommand.onTabComplete(sender, cmd, AbstractMasterCommand.genChildCommandRawLabel(parentRawLabel, childLabel), AbstractMasterCommand.extractChildCommandArguments(parentArgs)) : null;
         }
-    }
-
-    public List<String> callChildCommandTabCompletion(CommandSender sender, Command cmd, String childRawLabel, String childLabel, String[] childArgs) {
-        AbstractCommand childCommand = this.childCommandMap.get(childLabel);
-        return childCommand != null ? childCommand.onTabComplete(sender, cmd, childRawLabel, childArgs) : null;
     }
 
     //
@@ -119,17 +143,11 @@ public abstract class AbstractMasterCommand extends AbstractCommand {
             return false;
         }
         else {
-            String[] childArgs = new String[parentArgs.length-1];
-            System.arraycopy(parentArgs, 1, childArgs, 0, parentArgs.length - 1);
+            String childLabel = AbstractMasterCommand.extractChildCommandLabel(parentArgs);
+            AbstractCommand childCommand = this.getRegisteredChildCommandByLabel(childLabel);
 
-            String childLabel = parentArgs[0];
-            String childRawLabel = parentRawLabel + " " + childLabel;
-            return this.callChildCommand(sender, cmd, childRawLabel, childLabel, childArgs);
+            return childCommand != null && childCommand.onCommand(sender, cmd, AbstractMasterCommand.genChildCommandRawLabel(parentRawLabel, childLabel), AbstractMasterCommand.extractChildCommandArguments(parentArgs));
         }
     }
 
-    public boolean callChildCommand(CommandSender sender, Command cmd, String childRawLabel, String childLabel, String[] childArgs) {
-        AbstractCommand childCommand = this.childCommandMap.get(childLabel);
-        return childCommand != null && childCommand.onCommand(sender, cmd, childRawLabel, childArgs);
-    }
 }

@@ -35,7 +35,7 @@ public class CommandSyntax {
 
     //
 
-    private Map<Integer, Parameter> parameterMap = new HashMap<>();
+    private final Map<Integer, Parameter> parameterMap = new HashMap<>();
     private CommandAction action = null;
 
     //

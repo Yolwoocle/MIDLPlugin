@@ -9,6 +9,8 @@ public class GuildConfigColorCommand extends AbstractCommand {
     private HashMap<String, Color> defaultColors = new HashMap<>();
 
     public GuildConfigColorCommand() {
+        super("color");
+
         this.defaultColors.put("white", Color.WHITE);
         this.defaultColors.put("silver", Color.SILVER);
         this.defaultColors.put("gray", Color.GRAY);
@@ -27,9 +29,6 @@ public class GuildConfigColorCommand extends AbstractCommand {
         this.defaultColors.put("purple", Color.PURPLE);
         this.defaultColors.put("orange", Color.ORANGE);
     }
-
-    @Override
-    public String label() { return "color"; }
 
 //    @Override
 //    protected List<String> whenTabComplete(CommandSender sender, Command cmd, String label, String[] args, String[] labelPath) {

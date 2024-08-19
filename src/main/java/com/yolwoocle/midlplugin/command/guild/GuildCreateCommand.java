@@ -7,12 +7,9 @@ import org.bukkit.ChatColor;
 
 public class GuildCreateCommand extends AbstractCommand {
 
-    @Override
-    public String label() {
-        return "create";
-    }
-
     public GuildCreateCommand() {
+        super("create");
+
         this.registerSyntax(
             new CommandSyntax()
                 .setParameter(0, "guild")
